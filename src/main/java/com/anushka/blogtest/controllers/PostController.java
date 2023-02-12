@@ -12,11 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.anushka.blogtest.config.AppConstants;
 import com.anushka.blogtest.entities.Post;
 import com.anushka.blogtest.payloads.ApiResponse;
 import com.anushka.blogtest.payloads.PostDto;
+import com.anushka.blogtest.payloads.PostResponse;
 import com.anushka.blogtest.services.PostService;
 
 @RestController
@@ -49,9 +52,13 @@ public class PostController {
 	
 	//get all posts
 	@GetMapping("/posts")
-	public ResponseEntity<List<PostDto>> getAllPosts(){
-		List<PostDto> postDtos=this.postService.getAllPosts();
-		return new ResponseEntity<List<PostDto>>(postDtos,HttpStatus.OK);
+	public ResponseEntity<PostResponse> getAllPosts(
+			@RequestParam(value="pageNumber",defaultValue=AppConstants.PAGE_NUMBER,required=false)Integer pageNumber,
+			@RequestParam(value="pageSize",defaultValue=AppConstants.PAGE_SIZE,required=false)Integer pageSize,
+			@RequestParam(value="sortBy",defaultValue=AppConstants.SORT_BY,required=false)String sortBy,
+			@RequestParam(value="sortDirection",defaultValue=AppConstants.SORT_DIR,required=false)String sortDirection){
+		PostResponse postResponse=this.postService.getAllPosts(pageNumber, pageSize,sortBy,sortDirection);
+		return new ResponseEntity<PostResponse>(postResponse,HttpStatus.OK);
 	}
 	
 	//get post by id
@@ -77,6 +84,14 @@ public class PostController {
 		
 	}
 	
+	
+	//search
+	@GetMapping("/posts/search/{keywords}")
+	public ResponseEntity<List<PostDto>> searchPostByTitle(@PathVariable("keywords") String keywords){
+		List<PostDto> postDtos=this.postService.searchPosts(keywords);
+		return new ResponseEntity<List<PostDto>>(postDtos,HttpStatus.OK);
+		
+	}
 	
 	
 }
